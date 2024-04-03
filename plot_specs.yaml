@@ -1,0 +1,11 @@
+tab1:
+  - plot_type: 1d
+    x_axis: float1
+  - plot_type: 2d
+    x_axis: correlated0
+    y_axis: binary0
+tab2:
+  - plot_type: 3d
+    x_axis: float0
+    y_axis: float1
+    z_axis: integer0

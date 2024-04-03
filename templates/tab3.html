@@ -1,0 +1,179 @@
+<!-- templates/tab3.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab 3</title>
+</head>
+<body>
+    <h2>Tab 3 Content</h2>
+
+    <label for="plot-type">Select Plot Type:</label>
+    <select id="plot-type">
+        <option value="">Choose Plot Type</option>
+        <option value="1d">1D Plot</option>
+        <option value="2d">2D Plot</option>
+        <option value="3d">3D Plot</option>
+    </select>
+
+    <div id="data-selection" style="display: none;">
+        <!-- Greyed out multiple-choice boxes for data selection -->
+        <div id="data-selection-boxes">
+            <label for="x-axis">Data for X axis:</label>
+            <select id="x-axis" disabled>
+                <option value="">Choose Data</option>
+                <!-- Options will be populated dynamically based on the column names -->
+                {% for column in columns %}
+                    <option value="{{ column }}">{{ column }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="y-axis">Data for Y axis:</label>
+            <select id="y-axis" disabled>
+                <option value="">Choose Data</option>
+                <!-- Options will be populated dynamically based on the column names -->
+                {% for column in columns %}
+                    <option value="{{ column }}">{{ column }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="z-axis">Data for Z (color) axis:</label>
+            <select id="z-axis" disabled>
+                <option value="">Choose Data</option>
+                <!-- Options will be populated dynamically based on the column names -->
+                {% for column in columns %}
+                    <option value="{{ column }}">{{ column }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div id="masking-selection" style="display: none;">
+        <!-- Greyed out multiple-choice boxes for masking variable selection -->
+        <label for="masking-variable">Select Masking Variable:</label>
+        <select id="masking-variable" disabled>
+            <option value="">Choose Masking Variable</option>
+            <!-- Options will be populated dynamically based on the column names -->
+            {% for column in columns %}
+                <option value="{{ column }}">{{ column }}</option>
+            {% endfor %}
+        </select>
+        <label for="masking-lower-limit">Lower Limit:</label>
+        <input type="text" id="masking-lower-limit" disabled>
+        <label for="masking-upper-limit">Upper Limit:</label>
+        <input type="text" id="masking-upper-limit" disabled>
+    </div>
+
+    <button id="display-button" disabled>Display</button>
+
+    <!-- Empty plot container -->
+    <div id="plot-container"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Function to enable/disable data selection based on plot type
+        $(document).ready(function(){
+            $('#plot-type').change(function(){
+                var plotType = $(this).val();
+                if (plotType == '1d') {
+                    // Enable data selection for 1D plot
+                    $('#x-axis').prop('disabled', false);
+                    $('#data-selection').show();
+                    // Disable other selections
+                    $('#y-axis').prop('disabled', true);
+                    $('#z-axis').prop('disabled', true);
+                    // Enable masking selection for 2D plot
+                    $('#masking-variable').prop('disabled', false);
+                    $('#masking-lower-limit').prop('disabled', false);
+                    $('#masking-upper-limit').prop('disabled', false);
+                    $('#masking-selection').show();
+                } else if (plotType == '2d') {
+                    // Enable data selection for 2D plot
+                    $('#x-axis').prop('disabled', false);
+                    $('#y-axis').prop('disabled', false);
+                    $('#data-selection').show();
+                    // Disable other selections
+                    $('#z-axis').prop('disabled', true);
+                    // Enable masking selection for 2D plot
+                    $('#masking-variable').prop('disabled', false);
+                    $('#masking-lower-limit').prop('disabled', false);
+                    $('#masking-upper-limit').prop('disabled', false);
+                    $('#masking-selection').show();
+                } else if (plotType == '3d') {
+                    // Enable data selection for 3D plot
+                    $('#x-axis').prop('disabled', false);
+                    $('#y-axis').prop('disabled', false);
+                    $('#z-axis').prop('disabled', false);
+                    $('#data-selection').show();
+                    // Enable masking selection for 3D plot
+                    $('#masking-variable').prop('disabled', false);
+                    $('#masking-lower-limit').prop('disabled', false);
+                    $('#masking-upper-limit').prop('disabled', false);
+                    $('#masking-selection').show();
+                } else {
+                    // Hide all selections if no plot type is chosen
+                    $('#x-axis').prop('disabled', true);
+                    $('#y-axis').prop('disabled', true);
+                    $('#z-axis').prop('disabled', true);
+                    $('#data-selection').hide();
+                    $('#masking-variable').prop('disabled', true);
+                    $('#masking-lower-limit').prop('disabled', true);
+                    $('#masking-upper-limit').prop('disabled', true);
+                    $('#masking-selection').hide();
+                }
+            });
+
+            // Event handler for data selection change
+            $('#x-axis, #y-axis, #z-axis').change(function(){
+                // Call enableDisableDisplayButton function when data selection changes
+                enableDisableDisplayButton();
+            });
+
+            // Function to enable/disable the display button based on data selection
+            function enableDisableDisplayButton() {
+                var anyDataSelected = $('#x-axis').val() || $('#y-axis').val() || $('#z-axis').val();
+                $('#display-button').prop('disabled', !anyDataSelected);
+            }
+
+            // Function to handle "Display" button click
+            $('#display-button').click(function(){
+                var plotType = $('#plot-type').val();
+                var xAxis = $('#x-axis').val();
+                var yAxis = $('#y-axis').val();
+                var zAxis = $('#z-axis').val();
+                var maskingVariable = $('#masking-variable').val();
+                var lowerLimit = $('#masking-lower-limit').val();
+                var upperLimit = $('#masking-upper-limit').val();
+
+                var plotSpecs = {
+                    'plot_type': plotType,
+                    'x_axis': xAxis,
+                    'y_axis': yAxis,
+                    'z_axis': zAxis,
+                    'masking_variable': maskingVariable,
+                    'lower_limit': lowerLimit,
+                    'upper_limit': upperLimit
+                };
+
+                // Send plot specifications to Flask route
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate-user-plot',
+                    contentType: 'application/json',
+                    data: JSON.stringify(plotSpecs),
+                    success: function(response) {
+                        // Render the plot received from the server
+                        $('#plot-container').html(response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error sending plot specifications:', error);
+                    }
+                });
+            });
+        });
+
+    </script>
+</body>
+</html>

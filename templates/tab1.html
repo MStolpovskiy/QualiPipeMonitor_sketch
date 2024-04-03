@@ -1,0 +1,38 @@
+<!-- templates/tab1.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab 1</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Tab 1 Content</h2>
+
+    <!-- Plot container for tab 1 -->
+    <div id="plot-container-tab1"></div>
+
+    <!-- JavaScript to load plots for tab 1 -->
+    <script>
+        $(document).ready(function() {
+            // Make AJAX request to Flask route to generate plots for tab 1
+            $.ajax({
+                type: 'POST',
+                url: '/generate-plot',
+                contentType: 'application/json',
+                data: JSON.stringify({ 'tab': 'tab1' }),  // Send tab identifier
+                success: function(response) {
+                    // Append received plots to plot container
+                    $('#plot-container-tab1').append(response.plots);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
