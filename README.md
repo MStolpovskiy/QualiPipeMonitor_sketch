@@ -1,6 +1,25 @@
-A sketch for the future QualiPipe monitor.
+# A sketch for the future QualiPipe monitor.
 
-# Used technologies:
+## Environment Setup
+
+To set up the Conda environment for this project, follow these steps:
+
+1. Clone this repository to your local machine.
+2. Navigate to the project directory.
+3. Run the following command to create the Conda environment:
+
+    ```bash
+    conda env create -f environment.yml
+    ```
+
+4. Activate the environment using:
+
+    ```bash
+    conda activate flask-ctapipe-env
+    ```
+
+Now, the Conda environment is set up with all the required packages, including ctapipe.
+## Used technologies:
 - html to display the outputs
 - javascript in some places, to render some elements dynamically
 - python, because it's easy
@@ -12,7 +31,7 @@ because its easy to embed in html
 it is interactive and 
 it looks cool.
 
-# Already some questions:
+## Already some questions:
 - I'm not sure if it will be possible to continue with plotly,
 at least the camera view won't be straightforward, I think.
 - The user plotting is cool, but it is so limited:
